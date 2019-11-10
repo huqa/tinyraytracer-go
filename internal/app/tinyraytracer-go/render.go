@@ -5,8 +5,10 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 
+	"github.com/huqa/tinyraytracer-go/internal/pkg/object"
 	"github.com/huqa/tinyraytracer-go/internal/pkg/vector"
 )
 
@@ -16,23 +18,26 @@ const Width = 1024
 // Height defines the height of the resulting image in pixels
 const Height = 768
 
+// Fov defines the field of view angle for the camera
+const Fov = math.Pi / 2.0
+
 // framebuffer is a one dimensional array of Vectors
 var framebuffer []vector.Vector
 
 // Render renders an image and saves it to disk
-func Render() {
+func Render(sphere *object.Sphere) {
 	// init framebuffer
 	framebuffer = make([]vector.Vector, Width*Height)
 
 	fmt.Println("Filling framebuffer")
+	origin := vector.NewVector(0, 0, 0)
 	// fill framebuffer
 	for j := 0; j < Height; j++ {
 		for i := 0; i < Width; i++ {
-			framebuffer[i+j*Width] = vector.NewVector(
-				float64(j)/float64(Height),
-				float64(i)/float64(Width),
-				0,
-			)
+			x := (2*(float64(i)+0.5)/float64(Width) - 1) * math.Tan(Fov/2.0) * Width / float64(Height)
+			y := -(2*(float64(j)+0.5)/float64(Height) - 1) * math.Tan(Fov/2.0)
+			direction := vector.NewVector(x, y, -1).Normalize()
+			framebuffer[i+j*Width] = CastRay(&origin, &direction, sphere)
 		}
 	}
 
@@ -56,4 +61,13 @@ func Render() {
 	defer output.Close()
 
 	png.Encode(output, img)
+}
+
+// CastRay casts a ray and checks if the ray intersects with our sphere
+func CastRay(origin *vector.Vector, direction *vector.Vector, sphere *object.Sphere) vector.Vector {
+	sphereDistance := math.MaxFloat64
+	if !sphere.RayIntersects(*origin, *direction, sphereDistance) {
+		return vector.NewVector(0.2, 0.7, 0.8) // background color
+	}
+	return vector.NewVector(0.4, 0.4, 0.3)
 }
