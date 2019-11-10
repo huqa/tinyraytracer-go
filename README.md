@@ -5,4 +5,6 @@ https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
 
 Step 1: done
 
-Step 2: in progress
+Step 2: done
+
+Step 3: in progress
