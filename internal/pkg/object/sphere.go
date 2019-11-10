@@ -8,13 +8,13 @@ import (
 
 // Sphere defines a struct for a sphere object
 type Sphere struct {
-	Center   vector.Vector
+	Center   vector.Vector3
 	Radius   float64
 	Material Material
 }
 
 // NewSphere constructs a new sphere
-func NewSphere(center vector.Vector, radius float64, material Material) Sphere {
+func NewSphere(center vector.Vector3, radius float64, material Material) Sphere {
 	return Sphere{
 		Center:   center,
 		Radius:   radius,
@@ -24,7 +24,7 @@ func NewSphere(center vector.Vector, radius float64, material Material) Sphere {
 
 // RayIntersects checks if a given ray (originating from origin in direction of direction vector)
 // intersects with our sphere
-func (s Sphere) RayIntersects(origin vector.Vector, direction vector.Vector, t0 float64) (float64, bool) {
+func (s Sphere) RayIntersects(origin vector.Vector3, direction vector.Vector3, t0 float64) (float64, bool) {
 	// solve for tc
 	// find vector from ray origin to sphere center
 	L := s.Center.Subtract(origin)

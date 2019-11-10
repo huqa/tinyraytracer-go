@@ -17,10 +17,10 @@ import (
 )
 
 func main() {
-	fmt.Println("tinyraytracer-go v0.04")
+	fmt.Println("tinyraytracer-go v0.05")
 
-	ivory := object.NewMaterial(vector.NewVector(0.4, 0.4, 0.3))
-	redRubber := object.NewMaterial(vector.NewVector(0.3, 0.1, 0.1))
+	ivory := object.NewMaterial(vector.NewVector2(0.6, 0.3), vector.NewVector3(0.4, 0.4, 0.3), 50.0)
+	redRubber := object.NewMaterial(vector.NewVector2(1.9, 0.1), vector.NewVector3(0.3, 0.1, 0.1), 5.0)
 
 	/*sphere := object.Sphere{
 		Center: vector.NewVector(-3, 0, -16),
@@ -28,13 +28,13 @@ func main() {
 	}*/
 
 	spheres := make([]object.Sphere, 0)
-	spheres = append(spheres, object.NewSphere(vector.NewVector(-2, 0, -15), 2, ivory))
-	spheres = append(spheres, object.NewSphere(vector.NewVector(-1.0, -1.5, -12), 2, redRubber))
-	spheres = append(spheres, object.NewSphere(vector.NewVector(1.5, -0.5, -18), 3, redRubber))
-	spheres = append(spheres, object.NewSphere(vector.NewVector(7, 5, -18), 4, ivory))
+	spheres = append(spheres, object.NewSphere(vector.NewVector3(-2, 0, -15), 2, ivory))
+	spheres = append(spheres, object.NewSphere(vector.NewVector3(-1.0, -1.5, -12), 2, redRubber))
+	spheres = append(spheres, object.NewSphere(vector.NewVector3(1.5, -0.5, -18), 3, redRubber))
+	spheres = append(spheres, object.NewSphere(vector.NewVector3(7, 5, -18), 4, ivory))
 
 	lights := make([]object.Light, 0)
-	lights = append(lights, object.NewLight(vector.NewVector(-20, 20, 20), 1.5))
+	lights = append(lights, object.NewLight(vector.NewVector3(-20, 20, 20), 1.5))
 
 	fmt.Println("spheres ", spheres)
 	fmt.Println("lights ", lights)

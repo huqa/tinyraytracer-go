@@ -11,4 +11,6 @@ Step 3: done
 
 Step 4: done
 
-Step 5: in progress
+Step 5: done
+
+Step 6: in progress
