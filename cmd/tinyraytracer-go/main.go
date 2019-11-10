@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	fmt.Println("tinyraytracer-go v0.03")
+	fmt.Println("tinyraytracer-go v0.04")
 
 	ivory := object.NewMaterial(vector.NewVector(0.4, 0.4, 0.3))
 	redRubber := object.NewMaterial(vector.NewVector(0.3, 0.1, 0.1))
@@ -33,6 +33,10 @@ func main() {
 	spheres = append(spheres, object.NewSphere(vector.NewVector(1.5, -0.5, -18), 3, redRubber))
 	spheres = append(spheres, object.NewSphere(vector.NewVector(7, 5, -18), 4, ivory))
 
-	fmt.Println(spheres)
-	tinyraytracer.Render(spheres)
+	lights := make([]object.Light, 0)
+	lights = append(lights, object.NewLight(vector.NewVector(-20, 20, 20), 1.5))
+
+	fmt.Println("spheres ", spheres)
+	fmt.Println("lights ", lights)
+	tinyraytracer.Render(spheres, lights)
 }

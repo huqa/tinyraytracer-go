@@ -80,3 +80,10 @@ func (u Vector) ConvertToRGB() (uint8, uint8, uint8) {
 		uint8(255 * math.Max(0.0, math.Min(1.0, u.Y))),
 		uint8(255 * math.Max(0.0, math.Min(1.0, u.Z)))
 }
+
+// Copy copies values from vector v to vector u
+func (u *Vector) Copy(v Vector) {
+	u.X = v.X
+	u.Y = v.Y
+	u.Z = v.Z
+}

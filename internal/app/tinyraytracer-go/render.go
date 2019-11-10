@@ -25,7 +25,7 @@ const Fov = math.Pi / 2.0
 var framebuffer []vector.Vector
 
 // Render renders an image and saves it to disk
-func Render(spheres []object.Sphere) {
+func Render(spheres []object.Sphere, lights []object.Light) {
 	// init framebuffer
 	framebuffer = make([]vector.Vector, Width*Height)
 
@@ -37,7 +37,7 @@ func Render(spheres []object.Sphere) {
 			x := (2*(float64(i)+0.5)/float64(Width) - 1) * math.Tan(Fov/2.0) * Width / float64(Height)
 			y := -(2*(float64(j)+0.5)/float64(Height) - 1) * math.Tan(Fov/2.0)
 			direction := vector.NewVector(x, y, -1).Normalize()
-			framebuffer[i+j*Width] = CastRay(&origin, &direction, spheres)
+			framebuffer[i+j*Width] = CastRay(&origin, &direction, spheres, lights)
 		}
 	}
 
@@ -64,7 +64,11 @@ func Render(spheres []object.Sphere) {
 }
 
 // CastRay casts a ray and checks if the ray intersects with objects in our scene
-func CastRay(origin *vector.Vector, direction *vector.Vector, spheres []object.Sphere) vector.Vector {
+func CastRay(
+	origin *vector.Vector,
+	direction *vector.Vector,
+	spheres []object.Sphere,
+	lights []object.Light) vector.Vector {
 	point := &vector.Vector{}
 	N := &vector.Vector{}
 	mat := &object.Material{}
@@ -72,7 +76,14 @@ func CastRay(origin *vector.Vector, direction *vector.Vector, spheres []object.S
 	if !SceneIntersect(origin, direction, spheres, point, N, mat) {
 		return vector.NewVector(0.2, 0.7, 0.8) // background color
 	}
-	return mat.DiffuseColor
+
+	var diffuseLightIntensity float64
+	for _, light := range lights {
+		lightDirection := light.Position.Subtract(*point).Normalize()
+		diffuseLightIntensity += light.Intensity * math.Max(0.0, lightDirection.DotProduct(*N))
+	}
+
+	return mat.DiffuseColor.ScalarMultiply(diffuseLightIntensity)
 }
 
 // SceneIntersect checks if a ray intersects with objects in the scene and
@@ -90,10 +101,10 @@ func SceneIntersect(
 		t0, intersects := sphere.RayIntersects(*origin, *direction, distI)
 		if intersects && t0 < spheresDistance {
 			spheresDistance = t0
-			k := origin.Add(direction.ScalarMultiply(distI))
-			hit = &k
-			n := hit.Subtract(sphere.Center).Normalize()
-			N = &n
+			k := origin.Add(direction.ScalarMultiply(t0))
+			hit.Copy(k)
+			n := k.Subtract(sphere.Center).Normalize()
+			N.Copy(n)
 			mat.DiffuseColor = sphere.Material.DiffuseColor
 		}
 	}
