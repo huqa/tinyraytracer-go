@@ -9,4 +9,6 @@ Step 2: done
 
 Step 3: done
 
-Step 4: in progress
+Step 4: done
+
+Step 5: in progress
