@@ -7,4 +7,6 @@ Step 1: done
 
 Step 2: done
 
-Step 3: in progress
+Step 3: done
+
+Step 4: in progress
