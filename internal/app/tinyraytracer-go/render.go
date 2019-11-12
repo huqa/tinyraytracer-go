@@ -82,10 +82,30 @@ func CastRay(
 		return vector.NewVector3(0.2, 0.7, 0.8) // background color
 	}
 
+	// lights and shadows
 	var diffuseLightIntensity float64
 	var specularLightIntensity float64
+	var lightDistance float64
+	var shadowOrigin vector.Vector3
+	p := 1E-3
 	for _, light := range lights {
-		lightDirection := light.Position.Subtract(*point).Normalize()
+		lr := light.Position.Subtract(*point)
+		lightDirection := lr.Normalize()
+		lightDistance = lr.Magnitude()
+		if lightDirection.DotProduct(*N) < 0 {
+			shadowOrigin = point.Subtract(N.ScalarMultiply(p))
+		} else {
+			shadowOrigin = point.Add(N.ScalarMultiply(p))
+		}
+		shadowPoint := vector.Vector3{}
+		shadowNormal := vector.Vector3{}
+		tempMaterial := object.Material{}
+
+		if SceneIntersect(&shadowOrigin, &lightDirection, spheres, &shadowPoint, &shadowNormal, &tempMaterial) &&
+			shadowPoint.Subtract(shadowOrigin).Magnitude() < lightDistance {
+			continue
+		}
+
 		diffuseLightIntensity += light.Intensity * math.Max(0.0, lightDirection.DotProduct(*N))
 		specularLightIntensity += math.Pow(
 			math.Max(0.0, Reflect(lightDirection, *N).DotProduct(*direction)),

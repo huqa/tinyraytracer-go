@@ -38,7 +38,7 @@ func (u Vector3) DotProduct(v Vector3) float64 {
 	return u.X*v.X + u.Y*v.Y + u.Z*v.Z
 }
 
-// Magnitude returns the length of vector u
+// Magnitude returns the length of vector u (length, norm)
 func (u Vector3) Magnitude() float64 {
 	return math.Sqrt(u.DotProduct(u))
 }
