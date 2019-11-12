@@ -37,7 +37,7 @@ func Render(spheres []object.Sphere, lights []object.Light) {
 			x := (2*(float64(i)+0.5)/float64(Width) - 1) * math.Tan(Fov/2.0) * Width / float64(Height)
 			y := -(2*(float64(j)+0.5)/float64(Height) - 1) * math.Tan(Fov/2.0)
 			direction := vector.NewVector3(x, y, -1).Normalize()
-			framebuffer[i+j*Width] = CastRay(&origin, &direction, spheres, lights)
+			framebuffer[i+j*Width] = CastRay(&origin, &direction, spheres, lights, 0)
 		}
 	}
 
@@ -73,21 +73,36 @@ func CastRay(
 	origin *vector.Vector3,
 	direction *vector.Vector3,
 	spheres []object.Sphere,
-	lights []object.Light) vector.Vector3 {
+	lights []object.Light,
+	depth uint,
+) vector.Vector3 {
+
 	point := &vector.Vector3{}
 	N := &vector.Vector3{}
 	mat := &object.Material{}
 
-	if !SceneIntersect(origin, direction, spheres, point, N, mat) {
+	if depth > 4 || !SceneIntersect(origin, direction, spheres, point, N, mat) {
 		return vector.NewVector3(0.2, 0.7, 0.8) // background color
 	}
+
+	// offset
+	p := 1E-3
+
+	// reflections
+	reflectionDirection := Reflect(*direction, *N)
+	var reflectionOrigin vector.Vector3
+	if reflectionDirection.DotProduct(*N) < 0 {
+		reflectionOrigin = point.Subtract(N.ScalarMultiply(p))
+	} else {
+		reflectionOrigin = point.Add(N.ScalarMultiply(p))
+	}
+	reflectionColor := CastRay(&reflectionOrigin, &reflectionDirection, spheres, lights, depth+1)
 
 	// lights and shadows
 	var diffuseLightIntensity float64
 	var specularLightIntensity float64
 	var lightDistance float64
 	var shadowOrigin vector.Vector3
-	p := 1E-3
 	for _, light := range lights {
 		lr := light.Position.Subtract(*point)
 		lightDirection := lr.Normalize()
@@ -116,7 +131,8 @@ func CastRay(
 	l := mat.DiffuseColor.ScalarMultiply(diffuseLightIntensity).ScalarMultiply(mat.Albedo.X)
 	sp := specularLightIntensity * mat.Albedo.Y
 	l1 := vector.NewVector3(1.0, 1.0, 1.0).ScalarMultiply(sp)
-	return l.Add(l1)
+	re := reflectionColor.ScalarMultiply(mat.Albedo.Z)
+	return l.Add(l1).Add(re)
 }
 
 // SceneIntersect checks if a ray intersects with objects in the scene and
@@ -127,7 +143,8 @@ func SceneIntersect(
 	spheres []object.Sphere,
 	hit *vector.Vector3,
 	N *vector.Vector3,
-	mat *object.Material) bool {
+	mat *object.Material,
+) bool {
 	spheresDistance := math.MaxFloat64
 	for _, sphere := range spheres {
 		var distI float64
