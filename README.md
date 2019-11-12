@@ -17,4 +17,4 @@ Step 6: done
 
 Step 7: done
 
-Step 8: in progress
+Step 8: done

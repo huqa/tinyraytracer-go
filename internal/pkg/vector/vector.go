@@ -33,6 +33,24 @@ func NewVector2(x, y float64) Vector2 {
 	}
 }
 
+// Vector4 defines a struct holding the X, Y, Z and W values of a vector
+type Vector4 struct {
+	X float64
+	Y float64
+	Z float64
+	W float64
+}
+
+// NewVector4 constructs a new vector4
+func NewVector4(x, y, z, w float64) Vector4 {
+	return Vector4{
+		x,
+		y,
+		z,
+		w,
+	}
+}
+
 // DotProduct returns the dot product of vectors u and v
 func (u Vector3) DotProduct(v Vector3) float64 {
 	return u.X*v.X + u.Y*v.Y + u.Z*v.Z
@@ -85,6 +103,15 @@ func (u Vector3) Subtract(v Vector3) Vector3 {
 		u.X - v.X,
 		u.Y - v.Y,
 		u.Z - v.Z,
+	}
+}
+
+// Negate negates vector
+func (u Vector3) Negate() Vector3 {
+	return Vector3{
+		-u.X,
+		-u.Y,
+		-u.Z,
 	}
 }
 
