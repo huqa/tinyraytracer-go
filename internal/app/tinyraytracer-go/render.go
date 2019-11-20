@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	_ "image/jpeg" // for opening env map
 	"image/png"
 	"math"
 	"os"
@@ -21,11 +22,46 @@ const Height = 768
 // Fov defines the field of view angle for the camera
 const Fov = math.Pi / 3.0
 
-// framebuffer is a one dimensional array of Vectors
+// framebuffer is a one dimensional array of Vectors that defines the rgb pixel values of an image
 var framebuffer []vector.Vector3
 
+// environmentMap is a one dimensional array of Vectors that defines the rgb pixel values of the environment map
+var environmentMap []vector.Vector3
+var environmentMapWidth int
+var environmentMapHeight int
+
 // Render renders an image and saves it to disk
-func Render(spheres []object.Sphere, lights []object.Light) {
+func Render(spheres []object.Sphere, lights []object.Light, envMapPath string) {
+
+	reader, err := os.Open(fmt.Sprintf("assets/%s", envMapPath))
+	if err != nil {
+		fmt.Println(err)
+		panic("can't read environment map from file")
+	}
+	defer reader.Close()
+
+	envImage, _, err := image.Decode(reader)
+	if err != nil {
+		fmt.Println(err)
+		panic("can't decode env map image")
+	}
+
+	b := envImage.Bounds()
+	environmentMapWidth = b.Max.X
+	environmentMapHeight = b.Max.Y
+
+	// init environment map
+	environmentMap = make([]vector.Vector3, environmentMapWidth*environmentMapHeight)
+
+	fmt.Println("envmap width is", environmentMapWidth, ", height is", environmentMapHeight)
+
+	for j := 0; j < environmentMapHeight; j++ {
+		for i := 0; i < environmentMapWidth; i++ {
+			r, g, b, _ := envImage.At(i, j).RGBA()
+			environmentMap[(i + j*environmentMapWidth)] = vector.NewVector3(float64(r), float64(g), float64(b)).ScalarMultiply((1.0 / math.MaxUint16))
+		}
+	}
+
 	// init framebuffer
 	framebuffer = make([]vector.Vector3, Width*Height)
 
@@ -34,9 +70,6 @@ func Render(spheres []object.Sphere, lights []object.Light) {
 	// fill framebuffer
 	for j := 0; j < Height; j++ {
 		for i := 0; i < Width; i++ {
-			//x := (2*(float64(i)+0.5)/float64(Width) - 1) * math.Tan(Fov/2.0) * Width / float64(Height)
-			//y := -(2*(float64(j)+0.5)/float64(Height) - 1) * math.Tan(Fov/2.0)
-			//direction := vector.NewVector3(x, y, -1).Normalize()
 			x := (float64(i) + 0.5) - Width/2.0
 			y := -(float64(j) + 0.5) + Height/2.0
 			z := -float64(Height) / (2.0 * math.Tan(Fov/2.0))
@@ -65,6 +98,7 @@ func Render(spheres []object.Sphere, lights []object.Light) {
 
 	output, err := os.Create("test.png")
 	if err != nil {
+		fmt.Println(err)
 		panic("Oh noes I can't create the image file")
 	}
 	defer output.Close()
@@ -86,7 +120,15 @@ func CastRay(
 	mat := &object.Material{}
 
 	if depth > 4 || !SceneIntersect(origin, direction, spheres, point, N, mat) {
-		return vector.NewVector3(0.2, 0.7, 0.8) // background color
+		//return vector.NewVector3(0.2, 0.7, 0.8) // background color
+
+		// find u and v on our skybox sphere in range of [0,1]
+		u := 0.5 + (math.Atan2(direction.Z, direction.X) / (2 * math.Pi))
+		v := 0.5 - (math.Asin(direction.Y) / (math.Pi))
+		sphereX := int(float64(environmentMapWidth) * u)
+		sphereY := int(float64(environmentMapHeight) * v)
+
+		return environmentMap[sphereX+sphereY*environmentMapWidth]
 	}
 
 	// offset
