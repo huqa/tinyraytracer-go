@@ -36,7 +36,7 @@ func main() {
 	spheres = append(spheres, object.NewSphere(vector.NewVector3(7, 5, -18), 4, mirror))
 
 	lights := make([]object.Light, 0)
-	lights = append(lights, object.NewLight(vector.NewVector3(-20, 20, 20), 1.5))
+	lights = append(lights, object.NewLight(vector.NewVector3(-20, 20, 20), 4.5))
 	lights = append(lights, object.NewLight(vector.NewVector3(20, -20, -20), 1.8))
 	lights = append(lights, object.NewLight(vector.NewVector3(30, 20, 30), 1.7))
 

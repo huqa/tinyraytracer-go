@@ -176,7 +176,27 @@ func SceneIntersect(
 			mat.RefractiveIndex = sphere.Material.RefractiveIndex
 		}
 	}
-	return spheresDistance < 1000.0
+
+	checkerboardDistance := float64(math.MaxFloat64)
+	if math.Abs(direction.Y) > 1E-3 {
+		d := -(origin.Y + 4) / direction.Y
+		pt := origin.Add(direction.ScalarMultiply(d))
+		if d > 0.0 && math.Abs(pt.X) < 10.0 && pt.Z < -10 && pt.Z > -30.0 && d < spheresDistance {
+			checkerboardDistance = d
+			hit.Copy(pt)
+			N.Copy(vector.NewVector3(0, 1, 0))
+			if (int(0.5*hit.X+1000)+int(0.5*hit.Z))&1 == 1 {
+				mat.DiffuseColor.Copy(vector.NewVector3(.3, .3, .3))
+			} else {
+				mat.DiffuseColor.Copy(vector.NewVector3(.3, .2, .1))
+			}
+			mat.RefractiveIndex = 1
+			mat.SpecularExponent = 50.0
+			mat.Albedo = vector.NewVector4(1, 0.2, 0, 0)
+			//mat.DiffuseColor.Copy(mat.DiffuseColor.ScalarMultiply(0.3))
+		}
+	}
+	return math.Min(spheresDistance, checkerboardDistance) < 1000.0
 }
 
 // Reflect computes the illumination for a point
