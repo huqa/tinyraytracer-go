@@ -1,6 +1,5 @@
 # tinyraytracer-go
-Trying to implement tinyraytracer in golang and learn the basics
-
+Port of tinyraytracer written in go
 https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
 
 Step 1: done
