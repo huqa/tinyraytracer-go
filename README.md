@@ -1,5 +1,5 @@
 # tinyraytracer-go
-This is a port of tinyraytracer written in golang with 9 step complete.
+This is a port of tinyraytracer written in golang with 9 steps complete.
 
 https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
 
