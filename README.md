@@ -1,21 +1,8 @@
 # tinyraytracer-go
-Port of tinyraytracer written in go
+This is a port of tinyraytracer written in golang with 9 step complete.
+
 https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
 
-Step 1: done
 
-Step 2: done
-
-Step 3: done
-
-Step 4: done
-
-Step 5: done
-
-Step 6: done
-
-Step 7: done
-
-Step 8: done
-
-Step 9: done
+Generates the image:
+![Raytraced image](https://github.com/huqa/tinyraytracer-go/blob/master/test.png)
